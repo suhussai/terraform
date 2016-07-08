@@ -286,7 +286,22 @@ func (ctx *BuiltinEvalContext) CloseProvisioner(n string) error {
 
 func (ctx *BuiltinEvalContext) Interpolate(
 	cfg *config.RawConfig, r *Resource) (*ResourceConfig, error) {
-	if cfg != nil {
+
+	// If we're in the process of destroying, we don't want to interpolate,
+	// because the variables we are trying to interpolate may have already been
+	// pruned.
+	d, _ := ctx.Diff()
+	destroy := false
+	if d != nil {
+		for _, m := range d.Modules {
+			if m.Destroy {
+				destroy = true
+				break
+			}
+		}
+	}
+
+	if cfg != nil && !destroy {
 		scope := &InterpolationScope{
 			Path:     ctx.Path(),
 			Resource: r,

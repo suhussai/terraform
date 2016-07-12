@@ -24,20 +24,25 @@ func dataSourceAwsIamPolicyDocument() *schema.Resource {
 		Read: dataSourceAwsIamPolicyDocumentRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"statement": &schema.Schema{
+			"version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "2012-10-17",
+			},
+			"statement": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"effect": &schema.Schema{
+						"effect": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "Allow",
@@ -48,20 +53,20 @@ func dataSourceAwsIamPolicyDocument() *schema.Resource {
 						"not_resources":  setOfString,
 						"principals":     dataSourceAwsIamPolicyPrincipalSchema(),
 						"not_principals": dataSourceAwsIamPolicyPrincipalSchema(),
-						"condition": &schema.Schema{
+						"condition": {
 							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"test": &schema.Schema{
+									"test": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"variable": &schema.Schema{
+									"variable": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"values": &schema.Schema{
+									"values": {
 										Type:     schema.TypeSet,
 										Required: true,
 										Elem: &schema.Schema{
@@ -74,7 +79,7 @@ func dataSourceAwsIamPolicyDocument() *schema.Resource {
 					},
 				},
 			},
-			"json": &schema.Schema{
+			"json": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -84,7 +89,7 @@ func dataSourceAwsIamPolicyDocument() *schema.Resource {
 
 func dataSourceAwsIamPolicyDocumentRead(d *schema.ResourceData, meta interface{}) error {
 	doc := &IAMPolicyDoc{
-		Version: "2012-10-17",
+		Version: d.Get("version").(string),
 	}
 
 	if policyId, hasPolicyId := d.GetOk("id"); hasPolicyId {

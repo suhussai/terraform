@@ -72,6 +72,7 @@ valid to use literal JSON strings within your configuration, or to use the
 The following arguments are supported:
 
 * `id` (Optional) - An ID for the policy document.
+* `version` (Optional) - An policy version. Defaults to `2012-10-17`.
 * `statement` (Required) - A nested configuration block (described below)
   configuring one *statement* to be included in the policy document.
 

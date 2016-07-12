@@ -16,13 +16,35 @@ func TestAccAWSIAMPolicyDocument(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccAWSIAMPolicyDocumentConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStateValue(
 						"data.aws_iam_policy_document.test",
 						"json",
 						testAccAWSIAMPolicyDocumentExpectedJSON,
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAWSIAMPolicyDocument_versionOverride(t *testing.T) {
+	// This really ought to be able to be a unit test rather than an
+	// acceptance test, but just instantiating the AWS provider requires
+	// some AWS API calls, and so this needs valid AWS credentials to work.
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAWSIAMPolicyDocumentConfig_versionOverride,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStateValue(
+						"data.aws_iam_policy_document.test",
+						"json",
+						testAccAWSIAMPolicyDocumentExpectedJSON_versionOverride,
 					),
 				),
 			},
@@ -165,6 +187,37 @@ var testAccAWSIAMPolicyDocumentExpectedJSON = `{
         "s3:*"
       ],
       "NotResource": [
+        "arn:aws:s3:::*"
+      ]
+    }
+  ]
+}`
+
+var testAccAWSIAMPolicyDocumentConfig_versionOverride = `
+data "aws_iam_policy_document" "test" {
+    version = "2006-01-01"
+    statement {
+        actions = [
+            "s3:ListAllMyBuckets",
+            "s3:GetBucketLocation",
+        ]
+        resources = [
+            "arn:aws:s3:::*",
+        ]
+    }
+}
+`
+
+var testAccAWSIAMPolicyDocumentExpectedJSON_versionOverride = `{
+  "Version": "2006-01-01",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListAllMyBuckets"
+      ],
+      "Resource": [
         "arn:aws:s3:::*"
       ]
     }
